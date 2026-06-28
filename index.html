@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>قیمت لحظه‌ای سکه و طلا</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="قیمت طلا">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#239543">
+    
+    <!-- Vazirmatn Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background: linear-gradient(180deg, #239543 0%, #ffffff 50%, #DA0000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .gold-widget-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #239543 0%, #1a7a35 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 14px 18px;
+            border-radius: 16px;
+            margin-bottom: 4px;
+            font-size: 20px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 15px rgba(35, 149, 67, 0.4);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff55;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff55;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 85, 0.9); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 85, 0); }
+        }
+
+        .white-stripe {
+            background: #ffffff;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .price-display {
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .iframe-container {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.08), 0 0 15px rgba(35, 149, 67, 0.2);
+            border: 1px solid #e0e0e0;
+            height: 400px;
+        }
+
+        .iframe-container iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: none;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #239543;
+            font-size: 15px;
+            font-weight: 500;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .loading-indicator.active {
+            display: flex;
+        }
+
+        .red-stripe {
+            background: #DA0000;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(218, 0, 0, 0.3);
+        }
+
+        /* دکمه نصب */
+        .install-banner {
+            background: #DA0000;
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(218, 0, 0, 0.4);
+            animation: slideDown 0.5s ease;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .install-btn {
+            background: #ffffff;
+            color: #DA0000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .widget-footer {
+            background: #DA0000;
+            border-radius: 14px;
+            padding: 12px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(218, 0, 0, 0.4);
+            border: 1px solid #c00000;
+        }
+
+        .footer-text {
+            text-align: center;
+        }
+
+        .footer-text a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-text a:hover {
+            color: #ffd700;
+        }
+
+        .refresh-button {
+            background: #ffffff;
+            color: #DA0000;
+            border: 1px solid #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .refresh-button:hover {
+            background: #ffd700;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="gold-widget-container">
+        <!-- بنر نصب -->
+        <div class="install-banner" id="installBanner">
+            📱 برای دسترسی سریع‌تر، اپلیکیشن را نصب کنید
+            <button class="install-btn" id="installBtn">نصب</button>
+        </div>
+
+        <!-- نوار سبز بالا -->
+        <div class="widget-header">
+            <span class="live-dot"></span>
+            <span>🪙</span>
+            قیمت لحظه‌ای سکه و طلا
+        </div>
+
+        <!-- نوار سفید وسط -->
+        <div class="white-stripe"></div>
+
+        <div class="price-display">
+            <div class="iframe-container" id="iframeContainer">
+                <div class="loading-indicator" id="loadingIndicator">
+                    در حال بارگذاری قیمت‌ها...
+                </div>
+                <iframe 
+                    id="goldPriceFrame"
+                    src="https://www.tala.ir/webservice/price_live.php?new=1&items=1,2,3,4,5,6,7,8&dollar=0&bg=f0f4f6&obc=f9f9f9&ebc=ffffff&oc=09334d&upc=196900&dc=FF0000&hbc=09334d&hc=ffffff&fs=16&fw=bold"
+                    title="قیمت لحظه‌ای سکه و طلا"
+                    loading="lazy"
+                    scrolling="no">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- نوار قرمز پایین -->
+        <div class="red-stripe"></div>
+
+        <!-- فوتر -->
+        <div class="widget-footer">
+            <button class="refresh-button" id="manualRefresh">
+                🔄 تازه‌سازی صفحه
+            </button>
+            <div class="footer-text">
+                طراحی و توسعه: 
+                <a href="https://www.instagram.com/jalalsalehi.ir/" target="_blank" rel="noopener">
+                    jalalsalehi.ir
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Install Prompt ----------
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // جلوگیری از نمایش خودکار
+            e.preventDefault();
+            // ذخیره رویداد
+            deferredPrompt = e;
+            // نمایش بنر نصب
+            installBanner.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // نمایش دیالوگ نصب
+                deferredPrompt.prompt();
+                // منتظر نتیجه
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                // پاک کردن
+                deferredPrompt = null;
+                // مخفی کردن بنر
+                installBanner.classList.remove('show');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed successfully');
+            installBanner.classList.remove('show');
+        });
+
+        // ---------- Price Refresh ----------
+        const iframe = document.getElementById('goldPriceFrame');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const container = document.querySelector('.gold-widget-container');
+        const refreshBtn = document.getElementById('manualRefresh');
+
+        function showLoading() {
+            loadingIndicator.classList.add('active');
+            iframe.style.opacity = '0.3';
+        }
+
+        function hideLoading() {
+            loadingIndicator.classList.remove('active');
+            iframe.style.opacity = '1';
+        }
+
+        function refreshPrices() {
+            showLoading();
+            const src = iframe.src;
+            iframe.src = '';
+            setTimeout(() => { iframe.src = src; }, 100);
+        }
+
+        showLoading();
+
+        iframe.addEventListener('load', function() {
+            hideLoading();
+            container.style.animation = 'fadeInUp 0.6s ease';
+        });
+
+        iframe.addEventListener('error', function() {
+            loadingIndicator.innerHTML = '⚠️ خطا در بارگذاری قیمت‌ها';
+            loadingIndicator.style.color = '#FF0000';
+        });
+
+        refreshBtn.addEventListener('click', refreshPrices);
+
+        let refreshInterval = setInterval(refreshPrices, 300000);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshPrices();
+            }
+        });
+
+        let touchStartY = 0;
+        iframe.addEventListener('touchstart', (e) => touchStartY = e.touches[0].clientY);
+        iframe.addEventListener('touchend', (e) => {
+            if (e.changedTouches[0].clientY - touchStartY > 80) refreshPrices();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(refreshInterval);
+            } else {
+                refreshInterval = setInterval(refreshPrices, 300000);
+                refreshPrices();
+            }
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
